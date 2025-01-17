@@ -119,7 +119,7 @@ export default function Page(): JSX.Element {
             Decentralized Joint Account Management
           </h1>
           <p className="text-xl text-gray-300 mb-8">
-            Create and manage joint accounts on Xion with it's abstraction and advanced voting mechanisms with complete transparency
+            Create and manage joint accounts on Algorand with Xion's abstraction and advanced voting mechanisms with complete transparency
           </p>
 
           <div className="flex justify-center gap-4 mb-12">
