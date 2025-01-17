@@ -1,9 +1,9 @@
 export const CONTRACTS = {
-  'potato': 'xion1v6476wrjmw8fhsh20rl4h6jadeh5sdvlhrt8jyk2szrl3pdj4musyxj6gl'
+  'Jointly': 'xion1nc6uzsgdu6kuk9py2aue35qu66f2z6pshujp8tqwz8f7tpy0kv0s8vl9ck'
 }
 
 export const TREASURY = {
-  treasury: 'xion1j8mjkqff28eg8eyhut3yczyhhg4mzg6ss0e22mvpdamc4mmw4pmqtkufgu'
+  treasury: 'xion12fd5adhppmmyddd68aqdzgjdr4xhxzgg5vpkquuun83a7qthsamqvuswdt'
 }
 
 export const CONTRACTS_ARRAY = Object.values(CONTRACTS)
