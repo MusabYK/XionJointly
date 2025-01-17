@@ -8,7 +8,7 @@ import {
 import { Button } from "@burnt-labs/ui";
 import { useEffect, useState } from "react";
 import type { ExecuteResult } from "@cosmjs/cosmwasm-stargate";
-import { CONTRACTS, POTATO_ID, TREASURY } from "@/utils/constants";
+import { CONTRACTS, JOINTLY_ID, TREASURY } from "@/utils/constants";
 import type { GranteeSignerClient } from "@burnt-labs/abstraxion-core"
 
 type ExecuteResultOrUndefined = ExecuteResult | string | undefined;
@@ -60,12 +60,12 @@ export default function Page(): JSX.Element {
 
     try {
       if (type === "write") {
-        const res = await write(client, msg, bech32Address, CONTRACTS.potato)
+        const res = await write(client, msg, bech32Address, CONTRACTS.Jointly)
         setExecuteResult(res);
       }
 
       if (type === "read") {
-        const res = await read(client, msg, CONTRACTS.potato);
+        const res = await read(client, msg, CONTRACTS.Jointly);
 
         setExecuteResult(res);
       }
@@ -91,9 +91,9 @@ export default function Page(): JSX.Element {
 
   const getPotatoOwner = async () => {
     setOwnerOfPotato("Loading...");
-    const msg = { owner_of: { token_id: POTATO_ID } }
+    const msg = { owner_of: { token_id: JOINTLY_ID } }
     try {
-      const res = await read(client, msg, CONTRACTS.potato);
+      const res = await read(client, msg, CONTRACTS.Jointly);
       setOwnerOfPotato(res["owner"]);
     } catch (err) {
       console.log(err);
@@ -123,67 +123,6 @@ export default function Page(): JSX.Element {
               "CONNECT"
             )}
           </Button>
-          <Button
-            disabled={loading || !bech32Address}
-            fullWidth
-            onClick={() => setExecuteResult(undefined)}
-            structure="base"
-          >
-            Reset
-          </Button>
-        </div>
-        <div className="flex flex-col w-full gap-6">
-          <div className="flex flex-row w-full gap-6">
-            <Button
-              disabled={loading || !bech32Address}
-              fullWidth
-              onClick={() => execute("read", { minter: {} })}
-              structure="base"
-            >
-              Read Minter
-            </Button>
-            <Button
-              disabled={loading || !bech32Address}
-              fullWidth
-              onClick={() => execute("read", { contract_info: {} })}
-              structure="base"
-            >
-              Read Contract Info
-            </Button>
-          </div>
-          <div className="flex flex-row w-full gap-6">
-            {/* WRITE functions */}
-            <Button
-              disabled={loading || !bech32Address || !!(ownerOfPotato)}
-              onClick={() => execute("write", {
-                mint: {
-                  token_id: POTATO_ID,
-                  owner: bech32Address,
-                  token_uri: null,
-                  extension: {}
-                },
-              })}
-              structure="base"
-              className="w-[50%]"
-            >
-              Execute Mint
-            </Button>
-            <div className="flex flex-row gap-2 w-[50%]">
-              <input type="text" name="recipient" id="recipient" className="grow rounded-md text-black bg-primary border-2 border-foreground ring-0 active:ring-0" disabled={ownerOfPotato !== bech32Address} value={transferTo} onChange={(v) => setTransferTo(v.target.value)} />
-              <Button
-                disabled={loading || !bech32Address || ownerOfPotato !== bech32Address}
-                onClick={() => execute("write", {
-                  transfer_nft: {
-                    token_id: "1",
-                    recipient: transferTo
-                  },
-                })}
-                structure="base"
-              >
-                Transfer
-              </Button>
-            </div>
-          </div>
         </div>
       </div>
       <div className="border-2 border-primary rounded-md p-4 grid grid-cols-[30%_70%] grid-flow-row gap-4 w-full">
@@ -197,13 +136,13 @@ export default function Page(): JSX.Element {
           potato contract
         </div>
         <pre className="w-full overflow-auto p-2 text-wrap">
-          {CONTRACTS.potato}
+          {CONTRACTS.Jointly}
         </pre>
         <div>
           Potato ID
         </div>
         <pre>
-          {POTATO_ID}
+          {JOINTLY_ID}
         </pre>
         <div>
           Potato Current Owner

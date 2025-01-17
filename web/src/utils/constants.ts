@@ -13,4 +13,4 @@ export const CHAIN_ID = 'xion-testnet-1'
 
 export const EXPLORER = `https://explorer.burnt.com/${CHAIN_ID}`
 
-export const POTATO_ID = "11233";
+export const JOINTLY_ID = "1958";
