@@ -108,7 +108,7 @@ export default function Page(): JSX.Element {
   return (
     <main className="flex min-h-screen flex-col items-center justify-center gap-4 p-4 w-full px-12">
       <h1 className="text-2xl font-bold tracking-tighter text-black dark:text-white">
-        Potato 🥔
+        Jointly
       </h1>
       <div className="flex flex-col w-full gap-6">
         <div className="flex flex-row w-full gap-6">
@@ -118,45 +118,12 @@ export default function Page(): JSX.Element {
             structure="base"
           >
             {bech32Address ? (
-              <div className="flex items-center justify-center">VIEW ACCOUNT</div>
+              <div className="flex items-center justify-center">View Account</div>
             ) : (
-              "CONNECT"
+              "Cnnect Account"
             )}
           </Button>
         </div>
-      </div>
-      <div className="border-2 border-primary rounded-md p-4 grid grid-cols-[30%_70%] grid-flow-row gap-4 w-full">
-        <div>
-          your account address
-        </div>
-        <pre className="w-full overflow-auto p-2 text-wrap">
-          {bech32Address}
-        </pre>
-        <div>
-          potato contract
-        </div>
-        <pre className="w-full overflow-auto p-2 text-wrap">
-          {CONTRACTS.Jointly}
-        </pre>
-        <div>
-          Potato ID
-        </div>
-        <pre>
-          {JOINTLY_ID}
-        </pre>
-        <div>
-          Potato Current Owner
-        </div>
-        <pre>
-          {/* query the contract */}
-          {ownerOfPotato || "Owner undefined"}{ownerOfPotato === bech32Address && ` (You! 🫵)`}
-        </pre>
-        <div>
-          execution result
-        </div>
-        <pre className="w-full overflow-auto p-2 h-60 text-wrap">
-          {loading ? "Loading..." : JSON.stringify(executeResult, (_, v) => typeof v === "bigint" ? v.toString() : v)}
-        </pre>
       </div>
       <Abstraxion onClose={() => setShow(false)} />
     </main>
