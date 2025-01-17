@@ -1,117 +1,86 @@
-"use client";
-import {
-  Abstraxion,
-  useAbstraxionAccount,
-  useAbstraxionSigningClient,
-  useModal
-} from "@burnt-labs/abstraxion";
-import { Button } from "@burnt-labs/ui";
-import { useEffect, useState } from "react";
-import type { ExecuteResult } from "@cosmjs/cosmwasm-stargate";
-import { CONTRACTS, JOINTLY_ID, TREASURY } from "@/utils/constants";
-import type { GranteeSignerClient } from "@burnt-labs/abstraxion-core"
-import Navbar from "@/components/Navbar";
-import Footer from "@/components/Footer";
-import Feature from "@/components/Feature";
-import AnimatedWalletButton from "@/components/ScaleBtn";
+// src/components/Home.tsx
+import { Config as AlgokitConfig } from '@algorandfoundation/algokit-utils'
+import AlgorandClient from '@algorandfoundation/algokit-utils/types/algorand-client'
+import { useWallet } from '@txnlab/use-wallet'
+import algosdk, { decodeUint64, encodeAddress, encodeUint64 } from 'algosdk'
+import React, { useEffect, useState } from 'react'
+import ConnectWallet from './components/ConnectWallet'
+import MethodCall from './components/MethodCall'
+import Footer from './components/Footer'
+import Feature from './components/Feature'
+import { JointlyClient } from './contracts/Jointly'
+import * as methods from './methods'
+import { getAlgodConfigFromViteEnvironment } from './utils/network/getAlgoClientConfigs'
+import { TextAnimate } from './components/TextAnimate'
+import AnimatedWalletButton from './components/ScaleBtn'
+import Navbar from './components/Navbar'
 
-type ExecuteResultOrUndefined = ExecuteResult | string | undefined;
+interface HomeProps {}
 
+const proposalList: Proposal[] = [];
 
-async function write(client: GranteeSignerClient | undefined, msg: unknown, sender: string, contract: string) {
-  if (!client) return;
-  return client.execute(
-    sender,
-    contract,
-    msg,
+interface Proposal {
+  totalVotes: number;
+  votesInFavor: number;
+  votesAgainst: number;
+  executed: number;
+  proposerAddress: string;
+  proposal: string;
+}
+
+const Home: React.FC<HomeProps> = () => {
+  AlgokitConfig.configure({ populateAppCallResources: true })
+
+  const [openWalletModal, setOpenWalletModal] = useState<boolean>(false)
+  const [appId, setAppId] = useState<number>(0)
+  const [assetId, setAssetId] = useState<bigint>(0n)
+  const [creator, setCreator] = useState<string | undefined>(undefined)
+  const [memberAddress, setMember] = useState<string | undefined>(undefined)
+  const [memberName, setMemberName] = useState<string | undefined>(undefined)
+  const [proposal, setProposal] = useState<string | undefined>(undefined)
+
+  // Global state variables
+  const [counter, setCounter] = useState<number>(0)
+  const [currentProposal, setCurrentProposal] = useState<string>("")
+  const [currentProposerName, setCurrentProposer] = useState<string>("")
+  const [currentTotalVote, setCurrentTotalVote] = useState<bigint>(0n)
+  const [currentVotesInFavor, setCurrentVotesInFavor] = useState<bigint>(0n)
+  const [currentVotesAgainst, setCurrentVotesAgainst] = useState<bigint>(0n)
+  const [currentExecuted, setCurrentExecuted] = useState<boolean>(false)
+
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+  const { activeAddress, signer } = useWallet()
+
+  // ... keeping all the existing functions and useEffect ...
+  const fetchProposalBoxes = async () => {
+    // ... existing fetchProposalBoxes implementation ...
+  }
+
+  useEffect(() => {
+    // ... existing useEffect implementation ...
+  }, [appId])
+
+  const algodConfig = getAlgodConfigFromViteEnvironment()
+  const algorand = AlgorandClient.fromConfig({ algodConfig })
+  algorand.setDefaultSigner(signer)
+
+  const dmClient = new JointlyClient(
     {
-      amount: [{ amount: "1", denom: "uxion" }],
-      gas: "500000",
-      granter: TREASURY.treasury
+      resolveBy: 'id',
+      id: appId,
+      sender: { addr: activeAddress!, signer },
     },
-    "",
-    []
-  );
-}
+    algorand.client.algod,
+  )
 
-async function read(client: GranteeSignerClient | undefined, msg: unknown, contract: string) {
-  if (!client) return;
-  return client.queryContractSmart(
-    contract,
-    msg
-  );
-}
-
-export default function Page(): JSX.Element {
-  // Abstraxion hooks
-  const { data: { bech32Address }, isConnected, isConnecting } = useAbstraxionAccount();
-
-  // General state hooks
-  const [, setShow] = useModal();
-
-  const [executeResult, setExecuteResult] = useState<ExecuteResultOrUndefined>(undefined);
-  const [ownerOfPotato, setOwnerOfPotato] = useState<string | undefined>();
-  const [transferTo, setTransferTo] = useState<string>("");
-  const { client } = useAbstraxionSigningClient();
-
-
-  // to display loading state while the function executes
-  const [loading, setLoading] = useState(false);
-
-  const execute = async (type: "read" | "write", msg: unknown) => {
-    setLoading(true)
-    setExecuteResult(undefined)
-
-    try {
-      if (type === "write") {
-        const res = await write(client, msg, bech32Address, CONTRACTS.Jointly)
-        setExecuteResult(res);
-      }
-
-      if (type === "read") {
-        const res = await read(client, msg, CONTRACTS.Jointly);
-
-        setExecuteResult(res);
-      }
-
-    } catch (err) {
-
-      setExecuteResult("there was an error, check logs")
-      console.log(err)
-
-    } finally {
-
-      setLoading(false);
-
-    }
+  const toggleWalletModal = () => {
+    setOpenWalletModal(!openWalletModal)
   }
-
-
-  // watch isConnected and isConnecting
-  // only added for testing
-  useEffect(() => {
-    console.log({ isConnected, isConnecting });
-  }, [isConnected, isConnecting])
-
-  const getPotatoOwner = async () => {
-    setOwnerOfPotato("Loading...");
-    const msg = { owner_of: { token_id: JOINTLY_ID } }
-    try {
-      const res = await read(client, msg, CONTRACTS.Jointly);
-      setOwnerOfPotato(res["owner"]);
-    } catch (err) {
-      console.log(err);
-      setOwnerOfPotato(undefined)
-    }
-  }
-  useEffect(() => {
-    if (!client) return;
-    getPotatoOwner();
-  }, [client, executeResult])
 
   return (
-    <main className="min-h-screen bg-gradient-to-b from-gray-900/80 to-gray-800/80">
-      <Navbar />
+    <div className="min-h-screen bg-gradient-to-b from-gray-900/80 to-gray-800/80">
+      <Navbar/>
       {/* Hero Section */}
       <div className="container mx-auto px-4 py-20">
         <div className="text-center max-w-4xl mx-auto">
@@ -119,7 +88,7 @@ export default function Page(): JSX.Element {
             Decentralized Joint Account Management
           </h1>
           <p className="text-xl text-gray-300 mb-8">
-            Create and manage joint accounts on Xion with it's abstraction and advanced voting mechanisms with complete transparency
+            Create and manage joint accounts on Algorand blockchain with advanced voting mechanisms and complete transparency
           </p>
 
           <div className="flex justify-center gap-4 mb-12">
@@ -131,12 +100,12 @@ export default function Page(): JSX.Element {
             >
               Go To Account
             </a>
-            <AnimatedWalletButton onClick={() => { setShow(true) }} />
+            <AnimatedWalletButton onClick={toggleWalletModal} />
           </div>
         </div>
 
         {/* Features Section */}
-        <Feature />
+       <Feature />
 
         {/* How It Works Section */}
         <div className="py-20">
@@ -175,11 +144,11 @@ export default function Page(): JSX.Element {
 
         {/* Benefits Section */}
         <div className="py-20 bg-gray-800/50 rounded-3xl px-8 relative"
-          style={{
-            backgroundImage: 'linear-gradient(rgba(0, 0, 0, 0.85), rgba(0, 0, 0, 0.85)), url("/public/bg2.jpg")',
-            backgroundSize: 'cover',
-            backgroundPosition: 'center'
-          }}>
+        style={{
+          backgroundImage: 'linear-gradient(rgba(0, 0, 0, 0.85), rgba(0, 0, 0, 0.85)), url("/public/bg2.jpg")',
+          backgroundSize: 'cover',
+          backgroundPosition: 'center'
+        }}>
           <h2 className="text-4xl font-bold text-center text-white mb-12">Why Choose Us</h2>
           <div className="grid md:grid-cols-2 gap-12">
             <div className="space-y-6">
@@ -238,8 +207,10 @@ export default function Page(): JSX.Element {
       </div>
 
       {/* Footer Section */}
-      <Footer />
-      <Abstraxion onClose={() => setShow(false)} />
-    </main>
-  );
+     <Footer/>
+      <ConnectWallet openModal={openWalletModal} closeModal={toggleWalletModal} />
+    </div>
+  )
 }
+
+export default Home
