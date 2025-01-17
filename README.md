@@ -1,4 +1,4 @@
-# Jointly 🥔
+# Jointly
 
 ## Decentralized Joint Account management Dapp
 
